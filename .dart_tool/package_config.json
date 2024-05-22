@@ -81,7 +81,7 @@
     },
     {
       "name": "flutter_lints",
-      "rootUri": "file:///Users/macbookpro/.pub-cache/hosted/pub.dev/flutter_lints-3.0.2",
+      "rootUri": "file:///Users/macbookpro/.pub-cache/hosted/pub.dev/flutter_lints-4.0.0",
       "packageUri": "lib/",
       "languageVersion": "3.1"
     },
@@ -135,9 +135,9 @@
     },
     {
       "name": "lints",
-      "rootUri": "file:///Users/macbookpro/.pub-cache/hosted/pub.dev/lints-3.0.0",
+      "rootUri": "file:///Users/macbookpro/.pub-cache/hosted/pub.dev/lints-4.0.0",
       "packageUri": "lib/",
-      "languageVersion": "3.0"
+      "languageVersion": "3.1"
     },
     {
       "name": "matcher",
@@ -254,7 +254,7 @@
       "languageVersion": "3.4"
     }
   ],
-  "generated": "2024-05-22T03:53:23.171120Z",
+  "generated": "2024-05-22T07:10:52.053681Z",
   "generator": "pub",
   "generatorVersion": "3.4.0",
   "flutterRoot": "file:///Users/macbookpro/flutter",

@@ -1,6 +1,6 @@
 {
-    "name": "dans_productivity_app_flutter",
-    "short_name": "dans_productivity_app_flutter",
+    "name": "code_hub_app_flutter",
+    "short_name": "code_hub_app_flutter",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#0175C2",

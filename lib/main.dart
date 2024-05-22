@@ -14,7 +14,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return const MaterialApp(
         debugShowCheckedModeBanner: false,
-        title: 'Productivity App Demo',
-        home: WellcomePage());
+        title: 'Code Hub Demo',
+        home: LoginPage());
   }
 }
