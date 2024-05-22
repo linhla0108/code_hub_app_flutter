@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
-class SplashPage extends StatelessWidget {
-  const SplashPage({super.key});
+class WellcomePage extends StatelessWidget {
+  const WellcomePage({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -37,31 +37,8 @@ class SplashPage extends StatelessWidget {
                           ],
                         ),
                       ),
-                      Expanded(
-                        child: Align(
-                          alignment: AlignmentDirectional.center,
-                          child: Container(
-                            height: 60,
-                            width: MediaQuery.of(context).size.width,
-                            child: TextButton(
-                              style: ButtonStyle(
-                                backgroundColor: WidgetStateProperty.all<Color>(
-                                    Colors.black),
-                                shape: WidgetStateProperty.all<OutlinedBorder>(
-                                  RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(8),
-                                  ),
-                                ),
-                              ),
-                              onPressed: () {},
-                              child: Text(
-                                "Login",
-                                style: TextStyle(
-                                    fontSize: 25, color: Colors.white),
-                              ),
-                            ),
-                          ),
-                        ),
+                      ButtonWidget(
+                        title: "Login",
                       )
                     ],
                   )),
@@ -70,7 +47,35 @@ class SplashPage extends StatelessWidget {
     );
   }
 }
-// Text(
-//             "lorem ipsum dolor sit amet consectetur adipiscing elit sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.",
-            
-//           ),
+
+class ButtonWidget extends StatelessWidget {
+  const ButtonWidget({super.key, required this.title});
+  final String title;
+  @override
+  Widget build(BuildContext context) {
+    return Expanded(
+      child: Align(
+        alignment: AlignmentDirectional.center,
+        child: Container(
+          height: 60,
+          width: MediaQuery.of(context).size.width,
+          child: TextButton(
+            style: ButtonStyle(
+              backgroundColor: WidgetStateProperty.all<Color>(Colors.black),
+              shape: WidgetStateProperty.all<OutlinedBorder>(
+                RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8),
+                ),
+              ),
+            ),
+            onPressed: () {},
+            child: Text(
+              title,
+              style: TextStyle(fontSize: 25, color: Colors.white),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
