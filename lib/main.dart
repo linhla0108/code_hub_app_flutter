@@ -1,5 +1,4 @@
-import 'package:dans_productivity_app_flutter/src/screens/login.dart';
-import 'package:dans_productivity_app_flutter/src/screens/wellcome.dart';
+import 'package:dans_productivity_app_flutter/src/widgets/navigation-bar.dart';
 import 'package:flutter/material.dart';
 
 void main() {
@@ -15,6 +14,6 @@ class MyApp extends StatelessWidget {
     return const MaterialApp(
         debugShowCheckedModeBanner: false,
         title: 'Code Hub Demo',
-        home: LoginPage());
+        home: NavigationBarWidget());
   }
 }
