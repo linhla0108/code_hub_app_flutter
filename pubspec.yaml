@@ -37,6 +37,8 @@ dependencies:
   cupertino_icons: ^1.0.6
   http: ^1.2.1
   flutter_svg: ^2.0.10+1
+  custom_sliding_segmented_control: ^1.8.3
+  fl_chart: ^0.63.0
 
 dev_dependencies:
   flutter_test:
@@ -62,10 +64,10 @@ flutter:
     - assets/images/
     - assets/icons/
     - assets/fonts/
-  fonts:
-    - family: Montserrat
-      fonts:
-        - asset: assets/fonts/Montserrat-VariableFont_wght.ttf
+  # fonts:
+  #   - family: Montserrat
+  #     fonts:
+  #       - asset: assets/fonts/Montserrat-VariableFont_wght.ttf
   # To add assets to your application, add an assets section, like this:
   # assets:
   #   - images/a_dot_burr.jpeg

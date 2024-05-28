@@ -189,33 +189,35 @@
         { "type": 2, "percentage": 10 },
         { "type": 3, "percentage": 20 }
       ]
-    },
-    {
-      "id": 20,
-      "date": "20/03/2024",
-      "total": 380,
+    }
+  ],
+  "dashboard": {
+    "today": {
+      "label": "30/5/2024",
+      "total": 3810,
       "activities": [
         { "type": 1, "percentage": 70 },
         { "type": 2, "percentage": 10 },
         { "type": 3, "percentage": 20 }
       ]
-    }
-  ],
-  "abc": [
-    {
-      "userId": 1,
-      "id": 1,
-      "title": "quidem molestiae enim"
     },
-    {
-      "userId": 1,
-      "id": 1,
-      "title": "quidem molestiae enim"
+    "month": {
+      "label": "05/2024",
+      "total": 38320,
+      "activities": [
+        { "type": 1, "percentage": 60 },
+        { "type": 2, "percentage": 20 },
+        { "type": 3, "percentage": 20 }
+      ]
     },
-    {
-      "userId": 1,
-      "id": 1,
-      "title": "quidem molestiae enim"
+    "year": {
+      "label": "2024",
+      "total": 383230,
+      "activities": [
+        { "type": 1, "percentage": 50 },
+        { "type": 2, "percentage": 30 },
+        { "type": 3, "percentage": 20 }
+      ]
     }
-  ]
+  }
 }

@@ -6,6 +6,8 @@ import 'package:flutter/material.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 
+import '../models/activity.dart';
+
 class HistoryScreen extends StatefulWidget {
   const HistoryScreen({super.key});
   @override
@@ -21,9 +23,9 @@ class _HistoryScreenState extends State<HistoryScreen> {
     var data = jsonDecode(res.body);
 
     for (var eachItems in data) {
-      List<Activity> activities = [];
+      List<ActivityEntity> activities = [];
       for (var activity in eachItems["activities"]) {
-        activities.add(Activity(
+        activities.add(ActivityEntity(
             type: activity["type"], percentage: activity["percentage"]));
       }
       final item = History(

@@ -75,7 +75,7 @@ class LogCard extends StatelessWidget {
                 data: activity.percentage.toString(),
               );
             }).toList(),
-          )
+          ),
         ],
       ),
     );
