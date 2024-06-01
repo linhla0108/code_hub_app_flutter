@@ -16,7 +16,6 @@ class ChartDashBoard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    print(dataChart);
     return PieChart(
       swapAnimationCurve: Curves.easeInOutCubic,
       swapAnimationDuration: const Duration(milliseconds: 600),
@@ -26,7 +25,7 @@ class ChartDashBoard extends StatelessWidget {
         sections: dataChart.map((activity) {
           return buildPieChartSectionData(
               color: colorList[activity.type - 1],
-              value: activity.percentage.toDouble(),
+              value: activity.value.toDouble(),
               context: context);
         }).toList(),
       ),

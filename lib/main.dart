@@ -1,3 +1,4 @@
+import 'package:dans_productivity_app_flutter/src/screens/create-edit-log.dart';
 import 'package:dans_productivity_app_flutter/src/widgets/navigation-bar.dart';
 import 'package:flutter/material.dart';
 
@@ -11,9 +12,13 @@ class MyApp extends StatelessWidget {
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
-    return const MaterialApp(
+    return MaterialApp(
         debugShowCheckedModeBanner: false,
-        title: 'Code Hub Demo',
-        home: NavigationBarWidget());
+        title: 'Code Hub',
+        home: CreateLogScreen(
+          isCreateNew: false,
+          historyId: 1,
+        ));
+    // home: NavigationBarWidget());
   }
 }

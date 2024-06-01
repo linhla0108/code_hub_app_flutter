@@ -2,7 +2,6 @@ import 'dart:async';
 import 'dart:convert';
 
 import 'package:custom_sliding_segmented_control/custom_sliding_segmented_control.dart';
-import 'package:dans_productivity_app_flutter/src/models/history.dart';
 import 'package:dans_productivity_app_flutter/src/widgets/floating-button.dart';
 import 'package:dans_productivity_app_flutter/src/widgets/log-card.dart';
 import 'package:flutter/cupertino.dart';
@@ -33,8 +32,8 @@ class _DashBoardState extends State<DashBoard> {
 
     DashboardEntity createDashboardEntity(Map<String, dynamic> data) {
       var activities = (data['activities'] as List)
-          .map((activity) => ActivityEntity(
-              type: activity['type'], percentage: activity['percentage']))
+          .map((activity) =>
+              ActivityEntity(type: activity['type'], value: activity['value']))
           .toList();
 
       return DashboardEntity(

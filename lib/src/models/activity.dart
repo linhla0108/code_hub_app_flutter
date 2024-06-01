@@ -1,11 +1,16 @@
 class ActivityEntity {
   final int type;
-  final int percentage;
+  final int value;
 
-  ActivityEntity({required this.type, required this.percentage});
+  ActivityEntity({required this.type, required this.value});
+
+  Map<String, dynamic> toJson() => {
+        'type': type,
+        'value': value,
+      };
 
   @override
   String toString() {
-    return 'History{type: $type, percentage: $percentage}';
+    return 'History{type: $type, value: $value}';
   }
 }

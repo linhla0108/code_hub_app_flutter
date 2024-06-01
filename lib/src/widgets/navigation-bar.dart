@@ -13,13 +13,13 @@ class NavigationBarWidget extends StatefulWidget {
 
 class _NavigationBarWidgetState extends State<NavigationBarWidget> {
   int currentSelectedScreen = 0;
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       extendBody: true,
       backgroundColor: Colors.white,
       bottomNavigationBar: SafeArea(
-        // minimum: EdgeInsets.only(bottom: 20),
         child: Container(
           height: 74,
           margin: EdgeInsets.symmetric(horizontal: 16),
@@ -54,9 +54,6 @@ class _NavigationBarWidgetState extends State<NavigationBarWidget> {
                 icon: SvgPicture.asset('assets/icons/list.svg'),
                 label: 'History',
               ),
-              // Column(
-              //   mainAxisSize: MainAxisSize.min,
-              //   children: [
               NavigationDestination(
                 selectedIcon:
                     SvgPicture.asset('assets/icons/settings-rounded.svg'),
@@ -65,8 +62,6 @@ class _NavigationBarWidgetState extends State<NavigationBarWidget> {
               ),
             ],
           ),
-          //   ],
-          // ),
         ),
       ),
       body: <Widget>[

@@ -72,7 +72,7 @@ class LogCard extends StatelessWidget {
             children: activities.map<Widget>((activity) {
               return LogText(
                 title: typeActivityName[activity.type]!,
-                data: activity.percentage.toString(),
+                data: activity.value.toString(),
               );
             }).toList(),
           ),

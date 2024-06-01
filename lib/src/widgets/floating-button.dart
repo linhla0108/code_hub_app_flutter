@@ -1,4 +1,4 @@
-import 'package:dans_productivity_app_flutter/src/screens/create-log.dart';
+import 'package:dans_productivity_app_flutter/src/screens/create-edit-log.dart';
 import 'package:flutter/material.dart';
 
 class FloatingButton extends StatelessWidget {
@@ -13,8 +13,12 @@ class FloatingButton extends StatelessWidget {
           backgroundColor: Colors.black,
           elevation: 1.5,
           onPressed: () {
-            Navigator.push(context,
-                MaterialPageRoute(builder: (context) => CreateLogScreen()));
+            Navigator.push(
+                context,
+                MaterialPageRoute(
+                    builder: (context) => CreateLogScreen(
+                          isCreateNew: true,
+                        )));
           },
           child: Text(
             String.fromCharCode(Icons.add_rounded.codePoint),

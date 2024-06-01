@@ -25,8 +25,8 @@ class _HistoryScreenState extends State<HistoryScreen> {
     for (var eachItems in data) {
       List<ActivityEntity> activities = [];
       for (var activity in eachItems["activities"]) {
-        activities.add(ActivityEntity(
-            type: activity["type"], percentage: activity["percentage"]));
+        activities.add(
+            ActivityEntity(type: activity["type"], value: activity["value"]));
       }
       final item = History(
           id: eachItems['id'],
@@ -35,10 +35,6 @@ class _HistoryScreenState extends State<HistoryScreen> {
           activities: activities);
       history.add(item);
     }
-
-    // for (var h in history) {
-    //   print(h.toString());
-    // }
   }
 
   @override
