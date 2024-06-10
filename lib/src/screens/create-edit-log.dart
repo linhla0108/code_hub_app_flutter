@@ -1,33 +1,34 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import '../models/activity.dart';
 import '../models/history.dart';
 import '../utils/custom-snack-bar.dart';
 import '../widgets/button-create-submit.dart';
 import '../widgets/input-field.dart';
 import '../widgets/row-type-percentage.dart';
-import 'package:http/http.dart' as http;
-import 'dart:convert';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
-class CreateLogScreen extends StatefulWidget {
-  bool isCreateNew;
-  int? historyId;
+class CreateEditLogScreen extends StatefulWidget {
+  final bool isCreateNew;
+  final String? historyId;
 
-  CreateLogScreen({super.key, required this.isCreateNew, this.historyId});
+  CreateEditLogScreen({super.key, required this.isCreateNew, this.historyId});
 
   @override
-  State<CreateLogScreen> createState() => _CreateLogScreenState();
+  State<CreateEditLogScreen> createState() => _CreateEditLogScreenState();
 }
 
-class _CreateLogScreenState extends State<CreateLogScreen> {
+class _CreateEditLogScreenState extends State<CreateEditLogScreen> {
+  FirebaseFirestore dbFB = FirebaseFirestore.instance;
   final dateController = TextEditingController();
   final inputCodingController = TextEditingController();
   final inputResearchController = TextEditingController();
   final inputMeetingController = TextEditingController();
   final formKey = GlobalKey<FormState>();
 
+  String idItem = '';
   bool hasValueDate = true;
   bool validateComfirmed = false;
+  bool isExitedData = false;
   int totalValue = 0;
   int valueCoding = 0;
   int valueResearch = 0;
@@ -40,7 +41,6 @@ class _CreateLogScreenState extends State<CreateLogScreen> {
   void initState() {
     super.initState();
     dateController.text = DateFormat('dd/MM/yyyy').format(DateTime.now());
-
     maxlengthInput(inputCodingController);
     maxlengthInput(inputResearchController);
     maxlengthInput(inputMeetingController);
@@ -48,10 +48,16 @@ class _CreateLogScreenState extends State<CreateLogScreen> {
     dateController.addListener(() {
       setState(() {
         hasValueDate = dateController.text.isNotEmpty;
+        isExitedData = false;
       });
     });
 
-    widget.isCreateNew == true ? null : getHistory(100);
+    if (widget.isCreateNew == true) {
+      checkExitedData();
+    } else {
+      getHistory();
+      idItem = widget.historyId.toString();
+    }
   }
 
   void maxlengthInput(TextEditingController controller) {
@@ -64,34 +70,81 @@ class _CreateLogScreenState extends State<CreateLogScreen> {
     });
   }
 
-  List<History> history = [];
-  Future getHistory(int id) async {
-    history.clear();
-    var res =
-        await http.get(Uri.parse('http://localhost:3000/histories?id=$id'));
-    var data = jsonDecode(res.body);
+  void checkExitedData() {
+    idItem = dateController.text.replaceAll('/', '');
 
-    for (var eachItems in data) {
-      List<ActivityEntity> activities = [];
-      for (var activity in eachItems["activities"]) {
-        activities.add(
-            ActivityEntity(type: activity["type"], value: activity["value"]));
+    dbFB.collection('histories').doc(idItem).get().then((doc) {
+      if (doc.exists && dateController.text != "") {
+        setState(() {
+          isExitedData = true;
+        });
+      } else {
+        setState(() {
+          isExitedData = false;
+        });
       }
-      final item = History(
-          id: eachItems['id'],
-          date: eachItems["date"],
-          total: eachItems["total"],
-          activities: activities);
+    }).catchError((error) {
+      print('Error getting document: $error');
+    });
+  }
 
-      setState(() {
-        inputCodingController.text = item.activities[0].value.toString();
-        inputResearchController.text = item.activities[1].value.toString();
-        inputMeetingController.text = item.activities[2].value.toString();
-      });
-      calculateStats();
-      history.add(item);
-    }
-    print(history);
+  Future addToFireStore() async {
+    final dataLog = {
+      'id': idItem,
+      'date': dateController.text,
+      'total': totalValue,
+      "activities": [
+        {
+          "type": 1,
+          "value": valueCoding,
+        },
+        {
+          "type": 2,
+          "value": valueMeeting,
+        },
+        {
+          "type": 3,
+          "value": valueResearch,
+        }
+      ],
+    };
+    dbFB.collection('histories').doc('${idItem}').set(dataLog).then((message) {
+      print('success');
+    }).catchError((error) {
+      print('Error : $error');
+    }); //add data (can overwrite)
+  }
+
+  List<History> history = [];
+
+  void getHistory() {
+    dbFB
+        .collection('histories')
+        .doc('${widget.historyId}')
+        .get()
+        .then((DocumentSnapshot documentSnapshot) {
+      if (documentSnapshot.exists) {
+        Map<String, dynamic> data =
+            documentSnapshot.data() as Map<String, dynamic>;
+
+        setState(() {
+          idItem = data['id'];
+          totalValue = data['total'];
+          valueCoding = data['activities'][0]['value'];
+          valueResearch = data['activities'][1]['value'];
+          valueMeeting = data['activities'][2]['value'];
+          inputCodingController.text = valueCoding.toString();
+          inputResearchController.text = valueResearch.toString();
+          inputMeetingController.text = valueMeeting.toString();
+          dateController.text = data['date'];
+        });
+        calculateStats();
+      } else {
+        print('Document does not exist on the database');
+      }
+    }).catchError((error) {
+      print('Error getting document: $error');
+    });
   }
 
   Future<void> _selectedDate(BuildContext context) async {
@@ -107,6 +160,7 @@ class _CreateLogScreenState extends State<CreateLogScreen> {
       setState(() {
         dateController.text = DateFormat('dd/MM/yyyy').format(dateTimePicked);
       });
+      checkExitedData();
     }
   }
 
@@ -124,7 +178,7 @@ class _CreateLogScreenState extends State<CreateLogScreen> {
     setState(() {
       codingPercentage = calculatePercentage(valueCoding);
       researchPercentage = calculatePercentage(valueResearch);
-      meetingPercentage = calculatePercentage(valueResearch);
+      meetingPercentage = calculatePercentage(valueMeeting);
     });
   }
 
@@ -137,52 +191,12 @@ class _CreateLogScreenState extends State<CreateLogScreen> {
     ];
     controllers.forEach((controllers) {
       controllers.clear();
-      print(controllers.text);
     });
 
     totalValue = 0;
     codingPercentage = 0;
     researchPercentage = 0;
     meetingPercentage = 0;
-  }
-
-  Future<void> createNewLog() async {
-    var now = DateTime.now();
-    var formatter = DateFormat('HHmmssMMdd');
-    String idItem = formatter.format(now);
-
-    // await http.post(
-    //   Uri.parse('http://localhost:3000/histories/'),
-    //   body: jsonEncode({
-    //     'id': int.parse(idItem),
-    //     'date': dateController.text,
-    //     'total': totalValue,
-    //     "activities": [
-    //       ActivityEntity(type: 1, value: valueCoding),
-    //       ActivityEntity(type: 2, value: valueMeeting),
-    //       ActivityEntity(type: 3, value: valueResearch),
-    //     ],
-    //   }),
-    // );
-    await http.put(
-      Uri.parse('http://localhost:3000/histories?id=${widget.historyId}'),
-      body: jsonEncode({
-        'id': int.parse(idItem),
-        'date': dateController.text,
-        'total': totalValue,
-        "activities": [
-          ActivityEntity(type: 1, value: valueCoding),
-          ActivityEntity(type: 2, value: valueMeeting),
-          ActivityEntity(type: 3, value: valueResearch),
-        ],
-      }),
-    );
-  }
-
-  Future<void> uploadData() async {
-    await createNewLog();
-    CustomSnackBar(context, "Your log has been created!", false);
-    clearForm();
   }
 
   void validateForm() {
@@ -194,8 +208,19 @@ class _CreateLogScreenState extends State<CreateLogScreen> {
       CustomSnackBar(context, "You must enter at least 1 field ", true);
     } else {
       if (formKey.currentState!.validate()) {
-        //  widget.isCreateNew ==true ?
-        uploadData();
+        if (widget.isCreateNew == true) {
+          addToFireStore();
+          CustomSnackBar(
+              context,
+              isExitedData
+                  ? "Your log has been overwrited!"
+                  : "Your log has been created!",
+              false);
+          clearForm();
+        } else {
+          addToFireStore();
+          CustomSnackBar(context, "Your log has been updated!", false);
+        }
       } else {
         CustomSnackBar(context, "Please try again!", true);
       }
@@ -211,7 +236,7 @@ class _CreateLogScreenState extends State<CreateLogScreen> {
         title: Text(
           widget.isCreateNew == true
               ? 'CREATE NEW LOG'
-              : "EDIT LOG ID ${widget.historyId}",
+              : "EDIT LOG ${dateController.text}",
           style: TextStyle(
               fontSize: 20, fontWeight: FontWeight.w600, color: Colors.black),
         ),
@@ -287,6 +312,7 @@ class _CreateLogScreenState extends State<CreateLogScreen> {
                 ),
               ),
               RowTypePercentage(
+                  isExitedData: isExitedData,
                   total: totalValue,
                   coding: codingPercentage,
                   research: researchPercentage,

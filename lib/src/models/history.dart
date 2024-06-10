@@ -1,7 +1,7 @@
 import 'activity.dart';
 
 class History {
-  final int id;
+  final String id;
   final String date;
   final int total;
   final List<ActivityEntity> activities;

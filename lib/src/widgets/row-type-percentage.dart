@@ -3,16 +3,18 @@ import '../style/custom-style.dart';
 import 'warning-message.dart';
 
 class RowTypePercentage extends StatelessWidget {
-  int total;
-  int coding;
-  int research;
-  int meeting;
+  final int total;
+  final int coding;
+  final int research;
+  final int meeting;
+  final bool isExitedData;
   RowTypePercentage(
       {super.key,
       required this.total,
       required this.coding,
       required this.research,
-      required this.meeting});
+      required this.meeting,
+      required this.isExitedData});
 
   @override
   Widget build(BuildContext context) {
@@ -47,6 +49,7 @@ class RowTypePercentage extends StatelessWidget {
         ),
         SizedBox(height: 40),
         WarningMessage(
+          isExistedData: isExitedData,
           totalHour: convertTotalHours,
           totalMin: convertTotalMins,
         ),

@@ -245,6 +245,7 @@ class _DashBoardState extends State<DashBoard> {
                   currentData == null
                       ? CircularProgressIndicator()
                       : LogCard(
+                          id: "", // need to change
                           date: currentData!.label,
                           total: currentData!.total,
                           activities: currentData!.activities),
