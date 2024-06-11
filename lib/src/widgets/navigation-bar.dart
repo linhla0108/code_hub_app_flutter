@@ -4,6 +4,8 @@ import 'package:dans_productivity_app_flutter/src/screens/history.dart';
 import 'package:dans_productivity_app_flutter/src/screens/login.dart';
 import 'package:flutter/material.dart';
 
+import '../screens/test.dart';
+
 class NavigationBarWidget extends StatefulWidget {
   const NavigationBarWidget({super.key});
 
@@ -13,7 +15,6 @@ class NavigationBarWidget extends StatefulWidget {
 
 class _NavigationBarWidgetState extends State<NavigationBarWidget> {
   int currentSelectedScreen = 0;
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -67,7 +68,7 @@ class _NavigationBarWidgetState extends State<NavigationBarWidget> {
       body: <Widget>[
         DashBoard(),
         HistoryScreen(),
-        LoginScreen(),
+        TESSSTT(),
       ][currentSelectedScreen],
     );
   }

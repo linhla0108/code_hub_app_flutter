@@ -17,6 +17,16 @@ class CustomStyle {
       ),
     ],
   );
+  BoxDecoration StyleBoxShadowLogin = BoxDecoration(
+    boxShadow: [
+      BoxShadow(
+        color: const Color(0XFF000000).withOpacity(0.05),
+        spreadRadius: 0,
+        blurRadius: 8,
+        offset: Offset(0, 4),
+      ),
+    ],
+  );
 
   InputDecoration StyleBorderInput(bool hasValueDate) {
     return InputDecoration(
@@ -93,6 +103,26 @@ class CustomStyle {
       fontSize: 16,
       color: Color(0XFF555454),
       fontWeight: mainText ? FontWeight.w500 : FontWeight.w400,
+    );
+  }
+
+  InputDecoration StyleInputLogin(
+      bool isPassword, bool hasValue, Widget? revealPassword) {
+    return StyleBorderInput(true).copyWith(
+      hintText: isPassword ? "Enter your password" : "Enter your email",
+      labelText: isPassword ? "Password" : 'Email',
+      labelStyle: TextStyle(
+        fontSize: 15,
+        fontWeight: FontWeight.w500,
+        color: Color.fromARGB(255, 63, 71, 79),
+      ),
+      hintStyle: TextStyle(
+        fontSize: 15,
+        fontWeight: FontWeight.w500,
+        color: hasValue == true ? Color(0XFF8391A1) : Colors.red,
+      ),
+      contentPadding: EdgeInsets.symmetric(horizontal: 19, vertical: 15),
+      suffixIcon: revealPassword,
     );
   }
 }

@@ -1,4 +1,5 @@
 import 'package:dans_productivity_app_flutter/src/widgets/pie-chart.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
 class TESSSTT extends StatelessWidget {
@@ -7,10 +8,26 @@ class TESSSTT extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Center(
-          child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 50),
-              child: null)),
+      body: SafeArea(
+        child: Center(
+            child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 50),
+                child: Align(
+                  alignment: Alignment.bottomCenter,
+                  child: Container(
+                    width: 200,
+                    height: 50,
+                    color: Colors.blueAccent,
+                    child: TextButton(
+                      onPressed: () {
+                        FirebaseAuth.instance.signOut();
+                        print("asd");
+                      },
+                      child: Text("Logout"),
+                    ),
+                  ),
+                ))),
+      ),
     );
   }
 }
