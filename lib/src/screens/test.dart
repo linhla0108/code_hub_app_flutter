@@ -1,4 +1,3 @@
-import 'package:dans_productivity_app_flutter/src/widgets/pie-chart.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
@@ -21,7 +20,6 @@ class TESSSTT extends StatelessWidget {
                     child: TextButton(
                       onPressed: () {
                         FirebaseAuth.instance.signOut();
-                        print("asd");
                       },
                       child: Text("Logout"),
                     ),

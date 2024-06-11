@@ -108,14 +108,14 @@ class CustomStyle {
 
   InputDecoration StyleInputLogin(
       bool isPassword, bool hasValue, Widget? revealPassword) {
-    return StyleBorderInput(true).copyWith(
+    return StyleBorderInput(hasValue).copyWith(
       hintText: isPassword ? "Enter your password" : "Enter your email",
       labelText: isPassword ? "Password" : 'Email',
       labelStyle: TextStyle(
-        fontSize: 15,
-        fontWeight: FontWeight.w500,
-        color: Color.fromARGB(255, 63, 71, 79),
-      ),
+          fontSize: 15,
+          fontWeight: FontWeight.w500,
+          color:
+              hasValue == true ? Color.fromARGB(255, 63, 71, 79) : Colors.red),
       hintStyle: TextStyle(
         fontSize: 15,
         fontWeight: FontWeight.w500,

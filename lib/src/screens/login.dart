@@ -1,10 +1,7 @@
 import 'package:dans_productivity_app_flutter/src/utils/custom-snack-bar.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-
-import '../../main.dart';
 import '../style/custom-style.dart';
 
 class LoginScreen extends StatefulWidget {
@@ -16,11 +13,22 @@ class LoginScreen extends StatefulWidget {
 
 class _LoginScreenState extends State<LoginScreen> {
   bool revealPassword = false;
-  final hasValue = true;
+  bool hasValue = true;
   final formKey = GlobalKey<FormState>();
 
   final emailInputController = TextEditingController();
   final passwordInputController = TextEditingController();
+
+  void validateForm() {
+    if (emailInputController.text.isEmpty ||
+        passwordInputController.text.isEmpty) {
+      setState(() {
+        hasValue = false;
+      });
+    } else {
+      signIn();
+    }
+  }
 
   Future signIn() async {
     showDialog(
@@ -37,7 +45,6 @@ class _LoginScreenState extends State<LoginScreen> {
           .then(
         (value) {
           Navigator.pop(context);
-          print(value);
           CustomSnackBar(context, "Wellcome back develop!", false);
         },
       ).catchError(
@@ -49,12 +56,6 @@ class _LoginScreenState extends State<LoginScreen> {
     } on FirebaseAuthException catch (e) {
       print(e);
     }
-  }
-
-  @override
-  void dispose() {
-    passwordInputController.dispose();
-    super.dispose();
   }
 
   @override
@@ -124,8 +125,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       color: Colors.blue,
                       child: TextButton(
                         onPressed: () {
-                          signIn();
-                          print("Login");
+                          validateForm();
                         },
                         child: Text(
                           "Login",
