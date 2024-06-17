@@ -1,7 +1,10 @@
+import 'package:dans_productivity_app_flutter/src/screens/wellcome.dart';
 import 'package:dans_productivity_app_flutter/src/utils/custom-snack-bar.dart';
+import 'package:dans_productivity_app_flutter/src/widgets/button-login.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../style/custom-style.dart';
 
 class LoginScreen extends StatefulWidget {
@@ -14,10 +17,25 @@ class LoginScreen extends StatefulWidget {
 class _LoginScreenState extends State<LoginScreen> {
   bool revealPassword = false;
   bool hasValue = true;
+  late bool? isFirstRun = null;
+
   final formKey = GlobalKey<FormState>();
 
   final emailInputController = TextEditingController();
   final passwordInputController = TextEditingController();
+
+  void checkFirstTime() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    setState(() {
+      isFirstRun = prefs.getKeys().contains("firstRun");
+    });
+  }
+
+  @override
+  void initState() {
+    checkFirstTime();
+    super.initState();
+  }
 
   void validateForm() {
     if (emailInputController.text.isEmpty ||
@@ -45,7 +63,6 @@ class _LoginScreenState extends State<LoginScreen> {
           .then(
         (value) {
           Navigator.pop(context);
-          CustomSnackBar(context, "Wellcome back develop!", false);
         },
       ).catchError(
         (error) {
@@ -60,87 +77,115 @@ class _LoginScreenState extends State<LoginScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.white,
-      body: SafeArea(
-        child: Container(
-          width: MediaQuery.of(context).size.width,
-          height: MediaQuery.of(context).size.height,
-          child: Padding(
-              padding: EdgeInsets.all(24),
-              child: Form(
-                key: formKey,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    SizedBox(
-                      height: 70,
-                    ),
-                    Container(
-                        width: 250,
-                        child: Text(
-                          "Welcome back! Glad to see you, Again!",
-                          style: TextStyle(
-                              color: Color(0XFF1E232C),
-                              fontSize: 28,
-                              fontWeight: FontWeight.w800),
-                        )),
-                    SizedBox(height: 30),
-                    Container(
-                      height: 56,
-                      decoration: CustomStyle().StyleBoxShadowLogin,
-                      child: TextFormField(
-                        controller: emailInputController,
-                        decoration: CustomStyle()
-                            .StyleInputLogin(false, hasValue, null),
-                      ),
-                    ),
-                    SizedBox(height: 15),
-                    Container(
-                      height: 56,
-                      decoration: CustomStyle().StyleBoxShadowLogin,
-                      child: TextFormField(
-                        controller: passwordInputController,
-                        obscureText: !revealPassword,
-                        decoration: CustomStyle().StyleInputLogin(
-                            true,
-                            hasValue,
-                            GestureDetector(
-                              onTap: () {
-                                setState(() {
-                                  revealPassword = !revealPassword;
-                                });
-                                print(revealPassword);
-                              },
-                              child: Transform.scale(
-                                scale: 0.6,
-                                child: SvgPicture.asset(revealPassword
-                                    ? 'assets/icons/eye-close.svg'
-                                    : 'assets/icons/eye-open.svg'),
+    return isFirstRun == false
+        ? WellcomeScreen()
+        : isFirstRun == null
+            ? Scaffold(
+                backgroundColor: Colors.white,
+                body: Center(
+                  child: CircularProgressIndicator(),
+                ))
+            : Scaffold(
+                backgroundColor: Colors.white,
+                body: SafeArea(
+                  child: Container(
+                    width: MediaQuery.of(context).size.width,
+                    height: MediaQuery.of(context).size.height,
+                    child: Padding(
+                        padding: EdgeInsets.all(24),
+                        child: Form(
+                          key: formKey,
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              isFirstRun == false
+                                  ? Container(
+                                      height: 41,
+                                      width: 41,
+                                      decoration: BoxDecoration(
+                                        color: Colors.transparent,
+                                        borderRadius: BorderRadius.circular(12),
+                                        border: Border.all(
+                                            color: Color(0XFFE8ECF4), width: 1),
+                                      ),
+                                      alignment: Alignment.center,
+                                      child: IconButton(
+                                        iconSize: 22,
+                                        padding: EdgeInsets.only(right: 1),
+                                        icon: Icon(
+                                          fill: 1,
+                                          color: Colors.black,
+                                          Icons.arrow_back_ios_new_rounded,
+                                        ),
+                                        onPressed: () {
+                                          Navigator.pop(context);
+                                        },
+                                      ),
+                                    )
+                                  : SizedBox(),
+                              SizedBox(
+                                height: isFirstRun! ? 70 : 30,
                               ),
-                            )),
-                      ),
-                    ),
-                    Container(
-                      color: Colors.blue,
-                      child: TextButton(
-                        onPressed: () {
-                          validateForm();
-                        },
-                        child: Text(
-                          "Login",
-                          style: TextStyle(
-                              color: Color(0XFF1E232C),
-                              fontSize: 16,
-                              fontWeight: FontWeight.w500),
-                        ),
-                      ),
-                    )
-                  ],
+                              Container(
+                                  width: 250,
+                                  child: Text(
+                                    "Welcome back! Glad to see you, Again!",
+                                    style: TextStyle(
+                                        color: Color(0XFF1E232C),
+                                        fontSize: 28,
+                                        fontWeight: FontWeight.w800),
+                                  )),
+                              SizedBox(height: 30),
+                              Container(
+                                height: 56,
+                                decoration: CustomStyle().StyleBoxShadowLogin,
+                                child: TextFormField(
+                                  controller: emailInputController,
+                                  decoration: CustomStyle()
+                                      .StyleInputLogin(false, hasValue, null),
+                                ),
+                              ),
+                              SizedBox(height: 15),
+                              Container(
+                                height: 56,
+                                decoration: CustomStyle().StyleBoxShadowLogin,
+                                child: TextFormField(
+                                  controller: passwordInputController,
+                                  obscureText: !revealPassword,
+                                  decoration: CustomStyle().StyleInputLogin(
+                                      true,
+                                      hasValue,
+                                      GestureDetector(
+                                        onTap: () {
+                                          setState(() {
+                                            revealPassword = !revealPassword;
+                                          });
+                                        },
+                                        child: Transform.scale(
+                                          scale: 0.6,
+                                          child: SvgPicture.asset(revealPassword
+                                              ? 'assets/icons/eye-close.svg'
+                                              : 'assets/icons/eye-open.svg'),
+                                        ),
+                                      )),
+                                ),
+                              ),
+                              SizedBox(height: 39),
+                              ButtonLogin(
+                                title: 'Login',
+                                height: 56,
+                                fontSize: 20,
+                                fontWeight: FontWeight.w600,
+                                position: AlignmentDirectional.topCenter,
+                                onPress: () {
+                                  validateForm();
+                                },
+                              )
+                            ],
+                          ),
+                        )),
+                  ),
                 ),
-              )),
-        ),
-      ),
-    );
+              );
   }
 }

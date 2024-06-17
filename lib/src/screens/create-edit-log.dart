@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../models/history.dart';
 import '../utils/custom-snack-bar.dart';
+import '../utils/formatDate.dart';
+import '../utils/loading-animation.dart';
 import '../widgets/button-create-submit.dart';
 import '../widgets/input-field.dart';
 import '../widgets/row-type-percentage.dart';
@@ -24,7 +26,10 @@ class _CreateEditLogScreenState extends State<CreateEditLogScreen> {
   final inputResearchController = TextEditingController();
   final inputMeetingController = TextEditingController();
   final formKey = GlobalKey<FormState>();
+  DateTime now = DateTime.now();
 
+  String docIdExisted = '';
+  String userId = '';
   String idItem = '';
   bool hasValueDate = true;
   bool validateComfirmed = false;
@@ -40,7 +45,9 @@ class _CreateEditLogScreenState extends State<CreateEditLogScreen> {
   @override
   void initState() {
     super.initState();
-    dateController.text = DateFormat('dd/MM/yyyy').format(DateTime.now());
+    getCurrentUserId();
+
+    dateController.text = formatDate(now);
     maxlengthInput(inputCodingController);
     maxlengthInput(inputResearchController);
     maxlengthInput(inputMeetingController);
@@ -55,9 +62,18 @@ class _CreateEditLogScreenState extends State<CreateEditLogScreen> {
     if (widget.isCreateNew == true) {
       checkExitedData();
     } else {
-      getHistory();
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        getHistory();
+      });
       idItem = widget.historyId.toString();
     }
+  }
+
+  Future<void> getCurrentUserId() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    setState(() {
+      userId = prefs.getString('userId')!;
+    });
   }
 
   void maxlengthInput(TextEditingController controller) {
@@ -70,19 +86,24 @@ class _CreateEditLogScreenState extends State<CreateEditLogScreen> {
     });
   }
 
-  void checkExitedData() {
-    idItem = dateController.text.replaceAll('/', '');
+  void checkExitedData() async {
+    idItem = dateController.text;
 
-    dbFB.collection('histories').doc(idItem).get().then((doc) {
-      if (doc.exists && dateController.text != "") {
+    dbFB
+        .collection('histories')
+        .where('date',
+            isGreaterThanOrEqualTo: formatTimeStamp(dateController.text))
+        .where('date',
+            isLessThanOrEqualTo: formatTimeStamp(dateController.text))
+        .where('userId', isEqualTo: userId)
+        .get()
+        .then((QuerySnapshot querySnapshot) {
+      querySnapshot.docs.forEach((doc) {
         setState(() {
           isExitedData = true;
+          docIdExisted = doc.id;
         });
-      } else {
-        setState(() {
-          isExitedData = false;
-        });
-      }
+      });
     }).catchError((error) {
       print('Error getting document: $error');
     });
@@ -90,8 +111,9 @@ class _CreateEditLogScreenState extends State<CreateEditLogScreen> {
 
   Future addToFireStore() async {
     final dataLog = {
+      'userId': userId,
       'id': idItem,
-      'date': dateController.text,
+      'date': formatTimeStamp(dateController.text),
       'total': totalValue,
       "activities": [
         {
@@ -108,16 +130,34 @@ class _CreateEditLogScreenState extends State<CreateEditLogScreen> {
         }
       ],
     };
-    dbFB.collection('histories').doc('${idItem}').set(dataLog).then((message) {
-      print('success');
-    }).catchError((error) {
-      print('Error : $error');
-    }); //add data (can overwrite)
+
+    if (isExitedData == true || docIdExisted.isNotEmpty) {
+      dbFB
+          .collection('histories')
+          .doc(docIdExisted)
+          .set(dataLog)
+          .then((message) {
+        print('success');
+      }).catchError((error) {
+        print('Error : $error');
+      });
+    } else {
+      dbFB.collection('histories').add(dataLog).then((message) {
+        print('success');
+      }).catchError((error) {
+        print('Error : $error');
+      });
+    }
   }
 
   List<History> history = [];
 
   void getHistory() {
+    showLoadingDialog(context);
+    setState(() {
+      docIdExisted = widget.historyId!;
+    });
+
     dbFB
         .collection('histories')
         .doc('${widget.historyId}')
@@ -136,11 +176,10 @@ class _CreateEditLogScreenState extends State<CreateEditLogScreen> {
           inputCodingController.text = valueCoding.toString();
           inputResearchController.text = valueResearch.toString();
           inputMeetingController.text = valueMeeting.toString();
-          dateController.text = data['date'];
+          dateController.text = formatDate(data["date"].toDate());
         });
         calculateStats();
-      } else {
-        print('Document does not exist on the database');
+        Navigator.of(context).pop();
       }
     }).catchError((error) {
       print('Error getting document: $error');
@@ -148,17 +187,17 @@ class _CreateEditLogScreenState extends State<CreateEditLogScreen> {
   }
 
   Future<void> _selectedDate(BuildContext context) async {
-    int currentYear = DateTime.now().year;
+    int currentYear = now.year;
 
     DateTime? dateTimePicked = await showDatePicker(
         context: context,
-        initialDate: DateTime.now(),
+        initialDate: now,
         firstDate: DateTime(currentYear - 1),
         lastDate: DateTime(currentYear + 1));
 
     if (dateTimePicked != null) {
       setState(() {
-        dateController.text = DateFormat('dd/MM/yyyy').format(dateTimePicked);
+        dateController.text = formatDate(dateTimePicked);
       });
       checkExitedData();
     }
@@ -208,8 +247,8 @@ class _CreateEditLogScreenState extends State<CreateEditLogScreen> {
       CustomSnackBar(context, "You must enter at least 1 field ", true);
     } else {
       if (formKey.currentState!.validate()) {
+        addToFireStore();
         if (widget.isCreateNew == true) {
-          addToFireStore();
           CustomSnackBar(
               context,
               isExitedData
@@ -218,7 +257,6 @@ class _CreateEditLogScreenState extends State<CreateEditLogScreen> {
               false);
           clearForm();
         } else {
-          addToFireStore();
           CustomSnackBar(context, "Your log has been updated!", false);
         }
       } else {

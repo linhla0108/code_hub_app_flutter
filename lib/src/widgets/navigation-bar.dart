@@ -1,10 +1,10 @@
 import 'package:dans_productivity_app_flutter/src/screens/dashboard.dart';
+import 'package:dans_productivity_app_flutter/src/screens/setting.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:dans_productivity_app_flutter/src/screens/history.dart';
-import 'package:dans_productivity_app_flutter/src/screens/login.dart';
 import 'package:flutter/material.dart';
-
-import '../screens/test.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class NavigationBarWidget extends StatefulWidget {
   const NavigationBarWidget({super.key});
@@ -15,6 +15,22 @@ class NavigationBarWidget extends StatefulWidget {
 
 class _NavigationBarWidgetState extends State<NavigationBarWidget> {
   int currentSelectedScreen = 0;
+
+  @override
+  void initState() {
+    super.initState();
+    getCurrentUserId();
+  }
+
+  Future<void> getCurrentUserId() async {
+    final FirebaseAuth auth = FirebaseAuth.instance;
+    final User? user = auth.currentUser;
+    final String uid = user!.uid;
+
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    prefs.setString('userId', uid);
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -68,7 +84,7 @@ class _NavigationBarWidgetState extends State<NavigationBarWidget> {
       body: <Widget>[
         DashBoard(),
         HistoryScreen(),
-        TESSSTT(),
+        SettingScreen(),
       ][currentSelectedScreen],
     );
   }

@@ -1,8 +1,10 @@
 import 'dart:async';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:dans_productivity_app_flutter/src/models/history.dart';
+import 'package:dans_productivity_app_flutter/src/utils/formatDate.dart';
 import 'package:dans_productivity_app_flutter/src/widgets/log-card.dart';
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../models/activity.dart';
 
@@ -16,30 +18,44 @@ class HistoryScreen extends StatefulWidget {
 
 class _HistoryScreenState extends State<HistoryScreen> {
   List<History> history = [];
+
   Future<dynamic>? _historyFuture;
+
   Future getHistory() async {
     history.clear();
-
+    SharedPreferences prefs = await SharedPreferences.getInstance();
     FirebaseFirestore dbFB = FirebaseFirestore.instance;
-    final res = await dbFB.collection('histories').get();
+
+    final res = await dbFB
+        .collection('histories')
+        .where('userId', isEqualTo: prefs.getString('userId'))
+        .get();
 
     for (var eachItems in res.docs) {
-      Map<String, dynamic> data = eachItems.data();
-      List<ActivityEntity> activities = [];
-      for (var activity in data["activities"]) {
-        activities.add(ActivityEntity(
-            type: activity["type"],
-            value: data["total"] != 0
-                ? (activity["value"] / data["total"] * 100).round()
-                : 0));
-      }
+      try {
+        Map<String, dynamic> data = eachItems.data();
 
-      final item = History(
-          id: data['id'].toString(),
-          date: data["date"],
-          total: data["total"],
-          activities: activities);
-      history.add(item);
+        List<ActivityEntity> activities = [];
+        for (var activity in data["activities"]) {
+          activities.add(
+            ActivityEntity(
+                type: activity["type"],
+                value: data["total"] != 0
+                    ? (activity["value"] / data["total"] * 100).round()
+                    : 0),
+          );
+        }
+
+        final item = History(
+            id: eachItems.id,
+            date: formatDate(data["date"].toDate()),
+            total: data["total"],
+            activities: activities);
+
+        history.add(item);
+      } catch (e) {
+        print(e);
+      }
     }
   }
 
@@ -51,9 +67,11 @@ class _HistoryScreenState extends State<HistoryScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-        debugShowCheckedModeBanner: false,
-        home: Scaffold(
+    return
+        // MaterialApp(
+        //     debugShowCheckedModeBanner: false,
+        //     home:
+        Scaffold(
             backgroundColor: Colors.white,
             body: SafeArea(
               bottom: false,
@@ -62,6 +80,21 @@ class _HistoryScreenState extends State<HistoryScreen> {
                       (BuildContext context, bool innerBoxIsScrolled) {
                     return <Widget>[
                       SliverAppBar(
+                        actions: [
+                          IconButton(
+                            padding: EdgeInsets.only(right: 20),
+                            icon: Icon(
+                              Icons.refresh,
+                              color: Colors.black,
+                              size: 30,
+                            ),
+                            onPressed: () {
+                              setState(() {
+                                _historyFuture = getHistory();
+                              });
+                            },
+                          )
+                        ],
                         title: const Text(
                           'History',
                           style: TextStyle(
@@ -120,6 +153,8 @@ class _HistoryScreenState extends State<HistoryScreen> {
                     ),
                     // ),
                   )),
-            )));
+            ))
+        // )
+        ;
   }
 }

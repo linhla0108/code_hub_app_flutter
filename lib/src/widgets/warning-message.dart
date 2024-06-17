@@ -13,7 +13,7 @@ class WarningMessage extends StatelessWidget {
   Widget build(BuildContext context) {
     if (isExistedData == true ||
         totalMin != 0 && totalHour < 4 ||
-        totalHour > 24) {
+        totalHour >= 24) {
       return Container(
         child: RichText(
           text: TextSpan(

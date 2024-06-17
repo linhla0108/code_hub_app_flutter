@@ -1,16 +1,16 @@
 import 'dart:async';
-import 'dart:convert';
-
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:custom_sliding_segmented_control/custom_sliding_segmented_control.dart';
 import 'package:dans_productivity_app_flutter/src/widgets/floating-button.dart';
 import 'package:dans_productivity_app_flutter/src/widgets/log-card.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
-
+import 'package:shared_preferences/shared_preferences.dart';
 import '../models/activity.dart';
 import '../models/dashboard.dart';
 import '../utils/animation-text.dart';
+import '../utils/formatDate.dart';
+import '../utils/loading-animation.dart';
 import '../widgets/pie-chart.dart';
 
 class DashBoard extends StatefulWidget {
@@ -21,42 +21,99 @@ class DashBoard extends StatefulWidget {
 }
 
 class _DashBoardState extends State<DashBoard> {
+  FirebaseFirestore dbFB = FirebaseFirestore.instance;
+
+  String userName = "...";
   int optionSelected = 1;
-  DashboardEntity? today;
-  DashboardEntity? month;
-  DashboardEntity? year;
+  DateTime now = DateTime.now();
+
+  DashboardEntity? dataToday;
+  DashboardEntity? dataThisMonth;
+  DashboardEntity? dataThisYear;
   DashboardEntity? currentData;
-  Future getDataDashboard() async {
-    var res = await http.get(Uri.parse('http://localhost:3000/dashboard'));
-    var data = jsonDecode(res.body);
 
-    DashboardEntity createDashboardEntity(Map<String, dynamic> data) {
-      var activities = (data['activities'] as List)
-          .map((activity) =>
-              ActivityEntity(type: activity['type'], value: activity['value']))
-          .toList();
+  Future getDataUser() async {
+    showLoadingDialog(context);
 
-      return DashboardEntity(
-          label: data['label'], total: data['total'], activities: activities);
-    }
+    var data = dbFB.collection('histories');
 
-    var todayData = data['today'];
-    var monthData = data['month'];
-    var yearData = data['year'];
+    DateTime startOfToday = DateTime(now.year, now.month, now.day);
+    DateTime endOfToday = DateTime(now.year, now.month, now.day, 23, 59, 59);
 
-    today = createDashboardEntity(todayData);
-    month = createDashboardEntity(monthData);
-    year = createDashboardEntity(yearData);
+    DateTime firstDayOfMonth = DateTime(now.year, now.month, 1);
+    DateTime lastDayOfMonth = DateTime(now.year, now.month + 1, 0);
+
+    DateTime firstDayOfYear = DateTime(now.year, 1, 1);
+    DateTime lastDayOfYear = DateTime(now.year + 1, 1, 0);
+
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    final userId = prefs.getString('userId');
+    final infoUser = await dbFB.collection('users').doc(userId).get();
 
     setState(() {
-      currentData = today!;
+      userName = infoUser['name'];
     });
-  }
 
-  @override
-  void initState() {
-    super.initState();
-    getDataDashboard();
+    void fetchQueryDate(DateTime start, DateTime end, Function formatLabel) {
+      data
+          .where('date', isGreaterThanOrEqualTo: start)
+          .where('date', isLessThanOrEqualTo: end)
+          .where('userId', isEqualTo: userId)
+          .get()
+          .then((QuerySnapshot querySnapshot) {
+        if (querySnapshot.docs.isNotEmpty) {
+          num totalValue = 0;
+          num totalCoding = 0;
+          num totalResearch = 0;
+          num totalMeeting = 0;
+          List<ActivityEntity> activities = [];
+
+          querySnapshot.docs.forEach((doc) {
+            totalCoding += doc["activities"][0]["value"];
+            totalResearch += doc["activities"][1]["value"];
+            totalMeeting += doc["activities"][2]["value"];
+            totalValue += doc['total'];
+          });
+
+          void addActivity(int type, num totalActivityValue) {
+            activities.add(
+              ActivityEntity(
+                type: type,
+                value: totalValue != 0
+                    ? (totalActivityValue / totalValue * 100).round()
+                    : 0,
+              ),
+            );
+          }
+
+          addActivity(1, totalCoding);
+          addActivity(2, totalResearch);
+          addActivity(3, totalMeeting);
+
+          setState(() {
+            DashboardEntity data = DashboardEntity(
+                label: formatLabel(now),
+                total: totalValue.toInt(),
+                activities: activities);
+            if (start == startOfToday) {
+              dataToday = data;
+              optionSelected != 1 ? null : currentData = dataToday;
+            } else if (start == firstDayOfMonth) {
+              dataThisMonth = data;
+            } else if (start == firstDayOfYear) {
+              dataThisYear = data;
+            }
+          });
+        }
+      }).catchError((error) {
+        print("Failed to get data: $error");
+      }).whenComplete(() =>
+              start == firstDayOfYear ? Navigator.of(context).pop() : null);
+    }
+
+    fetchQueryDate(startOfToday, endOfToday, formatDate);
+    fetchQueryDate(firstDayOfMonth, lastDayOfMonth, formatMonth);
+    fetchQueryDate(firstDayOfYear, lastDayOfYear, formatYear);
   }
 
   void updateOption(int option) {
@@ -64,17 +121,25 @@ class _DashBoardState extends State<DashBoard> {
       optionSelected = option;
       switch (option) {
         case 1:
-          currentData = today;
+          currentData = dataToday;
           break;
         case 2:
-          currentData = month;
+          currentData = dataThisMonth;
           break;
         case 3:
-          currentData = year;
+          currentData = dataThisYear;
           break;
         default:
-          currentData = today;
+          currentData = dataToday;
       }
+    });
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      getDataUser();
     });
   }
 
@@ -90,7 +155,11 @@ class _DashBoardState extends State<DashBoard> {
               color: Colors.black,
               size: 30,
             ),
-            onPressed: () {},
+            onPressed: () {
+              setState(() {
+                getDataUser();
+              });
+            },
           )
         ],
         backgroundColor: Colors.white,
@@ -126,16 +195,16 @@ class _DashBoardState extends State<DashBoard> {
                             fontSize: 24, fontWeight: FontWeight.w600),
                       ),
                       Text(
-                        "20/05/2024",
+                        formatDate(now),
                         style: TextStyle(
                             fontSize: 18, fontWeight: FontWeight.w600),
                       )
                     ],
                   ),
-                  SizedBox(height: 5),
+                  SizedBox(height: 8),
                   Row(children: [
                     Text(
-                      "Vawn Datj Lor",
+                      userName,
                       style:
                           TextStyle(fontSize: 20, fontWeight: FontWeight.w600),
                     ),
@@ -243,82 +312,88 @@ class _DashBoardState extends State<DashBoard> {
                   ),
                   SizedBox(height: 14),
                   currentData == null
-                      ? CircularProgressIndicator()
-                      : LogCard(
-                          id: "", // need to change
-                          date: currentData!.label,
-                          total: currentData!.total,
-                          activities: currentData!.activities),
-                  SizedBox(height: 5),
-                  Padding(
-                    padding: EdgeInsets.symmetric(horizontal: 10),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Row(
+                      ? Text("No Data Record")
+                      : Column(
                           children: [
-                            Container(
-                              height: 13,
-                              width: 13,
-                              margin: EdgeInsets.only(right: 5),
-                              decoration: BoxDecoration(
-                                color: Color(0XFF626262),
+                            LogCard(
+                                id: "", // need to change
+                                date: currentData!.label,
+                                total: currentData!.total,
+                                activities: currentData!.activities),
+                            SizedBox(height: 5),
+                            Padding(
+                              padding: EdgeInsets.symmetric(horizontal: 10),
+                              child: Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Row(
+                                    children: [
+                                      Container(
+                                        height: 13,
+                                        width: 13,
+                                        margin: EdgeInsets.only(right: 5),
+                                        decoration: BoxDecoration(
+                                          color: Color(0XFF626262),
+                                        ),
+                                      ),
+                                      Text(
+                                        "Coding",
+                                        style: TextStyle(
+                                            fontSize: 15,
+                                            fontWeight: FontWeight.w600),
+                                      )
+                                    ],
+                                  ),
+                                  Row(
+                                    children: [
+                                      Container(
+                                        height: 13,
+                                        width: 13,
+                                        margin: EdgeInsets.only(right: 5),
+                                        decoration: BoxDecoration(
+                                          color: Color(0XFF9B9B9B),
+                                        ),
+                                      ),
+                                      Text(
+                                        "Research",
+                                        style: TextStyle(
+                                            fontSize: 15,
+                                            fontWeight: FontWeight.w600),
+                                      )
+                                    ],
+                                  ),
+                                  Row(
+                                    children: [
+                                      Container(
+                                        height: 13,
+                                        width: 13,
+                                        margin: EdgeInsets.only(right: 5),
+                                        decoration: BoxDecoration(
+                                          color: Color(0XFFE1E1E1),
+                                        ),
+                                      ),
+                                      Text(
+                                        "Meeting",
+                                        style: TextStyle(
+                                            fontSize: 15,
+                                            fontWeight: FontWeight.w600),
+                                      )
+                                    ],
+                                  )
+                                ],
                               ),
                             ),
-                            Text(
-                              "Coding",
-                              style: TextStyle(
-                                  fontSize: 15, fontWeight: FontWeight.w600),
-                            )
+                            Container(
+                              height: 250,
+                              child: Padding(
+                                  padding: EdgeInsets.fromLTRB(70, 20, 70, 0),
+                                  child: ChartDashBoard(
+                                    dataChart: currentData!.activities,
+                                  )),
+                            ),
                           ],
                         ),
-                        Row(
-                          children: [
-                            Container(
-                              height: 13,
-                              width: 13,
-                              margin: EdgeInsets.only(right: 5),
-                              decoration: BoxDecoration(
-                                color: Color(0XFF9B9B9B),
-                              ),
-                            ),
-                            Text(
-                              "Research",
-                              style: TextStyle(
-                                  fontSize: 15, fontWeight: FontWeight.w600),
-                            )
-                          ],
-                        ),
-                        Row(
-                          children: [
-                            Container(
-                              height: 13,
-                              width: 13,
-                              margin: EdgeInsets.only(right: 5),
-                              decoration: BoxDecoration(
-                                color: Color(0XFFE1E1E1),
-                              ),
-                            ),
-                            Text(
-                              "Meeting",
-                              style: TextStyle(
-                                  fontSize: 15, fontWeight: FontWeight.w600),
-                            )
-                          ],
-                        )
-                      ],
-                    ),
-                  ),
-                  Container(
-                    height: 250,
-                    child: Padding(
-                        padding: EdgeInsets.fromLTRB(70, 20, 70, 0),
-                        child: currentData == null
-                            ? CircularProgressIndicator()
-                            : ChartDashBoard(
-                                dataChart: currentData!.activities,
-                              )),
-                  ),
                 ],
               ),
             ),

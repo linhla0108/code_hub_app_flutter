@@ -50,11 +50,11 @@ class CustomStyle {
       fillColor: Colors.white,
       focusedBorder: OutlineInputBorder(
           borderSide: BorderSide(
-              color: hasValueDate ? Color(0xFFDDDDDD) : Colors.red, width: 2),
+              color: hasValueDate ? Color(0xFFDDDDDD) : Colors.red, width: 1),
           borderRadius: BorderRadius.circular(8)),
       enabledBorder: OutlineInputBorder(
           borderSide: BorderSide(
-              color: hasValueDate ? Color(0xFFDDDDDD) : Colors.red, width: 2),
+              color: hasValueDate ? Color(0xFFDDDDDD) : Colors.red, width: 1),
           borderRadius: BorderRadius.circular(8)),
     );
   }

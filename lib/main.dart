@@ -15,15 +15,12 @@ void main() async {
   runApp(CodehubApp());
 }
 
-final navigatorKey = GlobalKey<NavigatorState>();
-
 class CodehubApp extends StatelessWidget {
   CodehubApp({super.key});
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      navigatorKey: navigatorKey,
       debugShowCheckedModeBanner: false,
       title: 'Code Hub',
       home: StreamBuilder<User?>(
@@ -38,6 +35,7 @@ class CodehubApp extends StatelessWidget {
           } else {
             return LoginScreen();
           }
+
           return CustomSnackBar(context, "Some thing went wrong!", true);
         },
       ),

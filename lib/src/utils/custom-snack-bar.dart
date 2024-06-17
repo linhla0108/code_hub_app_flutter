@@ -11,7 +11,7 @@ Flushbar CustomSnackBar(
         isError == true ? Colors.red : Color.fromARGB(255, 82, 174, 85),
     duration: Duration(seconds: 2),
     flushbarStyle: FlushbarStyle.FLOATING,
-    margin: EdgeInsets.fromLTRB(24, 0, 24, 20),
+    margin: EdgeInsets.fromLTRB(24, 0, 24, 15),
     padding: EdgeInsets.all(8),
     borderRadius: BorderRadius.circular(10),
     // reverseAnimationCurve: Curves.decelerate,

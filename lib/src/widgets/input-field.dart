@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 import '../style/custom-style.dart';
 
@@ -8,11 +9,11 @@ class InputCreateLog extends StatefulWidget {
   final bool? isDatepicker;
   Function()? onTap;
   void Function(String)? onChanged;
-  bool showSuffixText;
-  bool errorValidate = false;
+  final bool showSuffixText;
+  final bool errorValidate = false;
   bool? hasValueDate = true;
-  String? Function(String?)? validator;
-  Widget? childWidget;
+  final String? Function(String?)? validator;
+  final Widget? childWidget;
   InputCreateLog(
       {super.key,
       required this.label,
@@ -47,6 +48,9 @@ class _InputCreateLogState extends State<InputCreateLog> {
                 : false,
             keyboardType:
                 widget.isDatepicker == null ? TextInputType.number : null,
+            inputFormatters: widget.isDatepicker == null
+                ? [FilteringTextInputFormatter.digitsOnly]
+                : null,
             controller: widget.controller,
             onChanged: widget.onChanged,
             onTap: widget.onTap,

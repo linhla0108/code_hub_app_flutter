@@ -1,7 +1,16 @@
+import 'package:dans_productivity_app_flutter/src/screens/login.dart';
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+
+import '../widgets/button-login.dart';
 
 class WellcomeScreen extends StatelessWidget {
   const WellcomeScreen({super.key});
+
+  void recordedFirstTime() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    prefs.setBool("firstRun", true);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -37,45 +46,24 @@ class WellcomeScreen extends StatelessWidget {
                           ],
                         ),
                       ),
-                      ButtonWidget(
+                      ButtonLogin(
+                        height: 60,
                         title: "Login",
-                      )
+                        fontSize: 25,
+                        onPress: () {
+                          recordedFirstTime();
+                          Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) => LoginScreen()));
+                        },
+                        fontWeight: FontWeight.bold,
+                        position: AlignmentDirectional.center,
+                      ),
                     ],
                   )),
             ),
           )),
-    );
-  }
-}
-
-class ButtonWidget extends StatelessWidget {
-  const ButtonWidget({super.key, required this.title});
-  final String title;
-  @override
-  Widget build(BuildContext context) {
-    return Expanded(
-      child: Align(
-        alignment: AlignmentDirectional.center,
-        child: Container(
-          height: 60,
-          width: MediaQuery.of(context).size.width,
-          child: TextButton(
-            style: ButtonStyle(
-              backgroundColor: WidgetStateProperty.all<Color>(Colors.black),
-              shape: WidgetStateProperty.all<OutlinedBorder>(
-                RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(8),
-                ),
-              ),
-            ),
-            onPressed: () {},
-            child: Text(
-              title,
-              style: TextStyle(fontSize: 25, color: Colors.white),
-            ),
-          ),
-        ),
-      ),
     );
   }
 }

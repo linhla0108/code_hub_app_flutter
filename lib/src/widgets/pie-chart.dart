@@ -5,7 +5,7 @@ import 'package:flutter/material.dart';
 import '../models/activity.dart';
 
 class ChartDashBoard extends StatelessWidget {
-  List<ActivityEntity> dataChart;
+  final List<ActivityEntity> dataChart;
   ChartDashBoard({super.key, required this.dataChart});
 
   final List<Color> colorList = [

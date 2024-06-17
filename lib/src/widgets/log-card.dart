@@ -3,7 +3,6 @@ import 'package:dans_productivity_app_flutter/src/utils/custom-snack-bar.dart';
 import 'package:dans_productivity_app_flutter/src/widgets/log-text.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
-
 import '../screens/create-edit-log.dart';
 
 class LogCard extends StatefulWidget {
@@ -26,14 +25,21 @@ class LogCard extends StatefulWidget {
 }
 
 class _LogCardState extends State<LogCard> with TickerProviderStateMixin {
-  // late SlidableController slidableController;
-  // bool isDragLeft = false;
   bool needRefresh = false;
 
   @override
   void initState() {
     super.initState();
-    // slidableController = SlidableController(this);
+  }
+
+  void editHistory() {
+    Navigator.push(
+        context,
+        MaterialPageRoute(
+            builder: (context) => CreateEditLogScreen(
+                  isCreateNew: false,
+                  historyId: widget.id,
+                )));
   }
 
   void deleteHistory() {
@@ -47,7 +53,6 @@ class _LogCardState extends State<LogCard> with TickerProviderStateMixin {
       print('Document successfully deleted');
     }).catchError((error) {
       CustomSnackBar(context, "Please try later!", true);
-
       print('Error deleting document: $error');
     });
   }
@@ -63,12 +68,13 @@ class _LogCardState extends State<LogCard> with TickerProviderStateMixin {
     };
 
     return Container(
-      // color: Colors.blue,
+      decoration: BoxDecoration(
+        color: Colors.blue,
+        borderRadius: BorderRadius.circular(15),
+      ),
       margin: EdgeInsets.only(bottom: 16),
       child: Slidable(
         key: Key(widget.id),
-        // dragStartBehavior: DragStartBehavior.down,
-        // controller: slidableController,
         endActionPane: ActionPane(
             dismissible: DismissiblePane(onDismissed: () {
               deleteHistory();
@@ -80,13 +86,7 @@ class _LogCardState extends State<LogCard> with TickerProviderStateMixin {
                 flex: 7,
                 backgroundColor: Colors.red,
                 onPressed: (BuildContext context) {
-                  Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                          builder: (context) => CreateEditLogScreen(
-                                isCreateNew: false,
-                                historyId: widget.id,
-                              )));
+                  editHistory();
                 },
                 padding: EdgeInsets.zero,
                 child: Container(
@@ -115,7 +115,6 @@ class _LogCardState extends State<LogCard> with TickerProviderStateMixin {
               ),
               CustomSlidableAction(
                 flex: 6,
-                // backgroundColor: Colors.red,
                 child: Container(
                   width: MediaQuery.of(context).size.width,
                   decoration: BoxDecoration(
@@ -145,68 +144,73 @@ class _LogCardState extends State<LogCard> with TickerProviderStateMixin {
                 ),
               ),
             ]),
-        child: Container(
-          width: MediaQuery.of(context).size.width,
-          // margin: EdgeInsets.only(bottom: 16),
-          padding: EdgeInsets.fromLTRB(16, 10, 16, 10),
-          decoration: BoxDecoration(
-              color: Color(0XFFEAE9E9),
-              borderRadius: BorderRadius.only(
-                topLeft: Radius.circular(13),
-                bottomLeft: Radius.circular(13),
-                topRight: Radius.circular(13),
-                bottomRight: Radius.circular(13),
-              ),
-              boxShadow: [
-                BoxShadow(
-                  color: const Color(0XFF000000).withOpacity(0.25),
-                  spreadRadius: 0,
-                  blurRadius: 10,
-                  offset: Offset(4, 4), // changes position of shadow
+        child: GestureDetector(
+          onTap: () {
+            editHistory();
+          },
+          child: Container(
+            width: MediaQuery.of(context).size.width,
+            // margin: EdgeInsets.only(bottom: 16),
+            padding: EdgeInsets.fromLTRB(16, 10, 16, 10),
+            decoration: BoxDecoration(
+                color: Color(0XFFEAE9E9),
+                borderRadius: BorderRadius.only(
+                  topLeft: Radius.circular(13),
+                  bottomLeft: Radius.circular(13),
+                  topRight: Radius.circular(13),
+                  bottomRight: Radius.circular(13),
                 ),
-              ]),
-          child: Column(
-            children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceAround,
-                children: [
-                  Expanded(
-                    flex: 2,
-                    child: Text(widget.date,
-                        style: TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.w600,
-                            color: Colors.black)),
+                boxShadow: [
+                  BoxShadow(
+                    color: const Color(0XFF000000).withOpacity(0.25),
+                    spreadRadius: 0,
+                    blurRadius: 10,
+                    offset: Offset(4, 4), // changes position of shadow
                   ),
-                  Row(
-                    children: [
-                      Text(
-                        "Total: ",
-                        style: TextStyle(
-                            fontSize: 16, fontWeight: FontWeight.w600),
-                      ),
-                      Text(
-                        convertTotalHours.toString() +
-                            "h " +
-                            convertTotalMins.toString() +
-                            "m",
-                        style: TextStyle(fontSize: 16),
-                      )
-                    ],
-                  ),
-                ],
-              ),
-              SizedBox(height: 5),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: widget.activities.map<Widget>((activity) {
-                  return LogText(
-                    title: typeActivityName[activity.type]!,
-                    data: activity.value.toString(),
-                  );
-                }).toList(),
-              ),
-            ],
+                ]),
+            child: Column(
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceAround,
+                  children: [
+                    Expanded(
+                      flex: 2,
+                      child: Text(widget.date,
+                          style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.w600,
+                              color: Colors.black)),
+                    ),
+                    Row(
+                      children: [
+                        Text(
+                          "Total: ",
+                          style: TextStyle(
+                              fontSize: 16, fontWeight: FontWeight.w600),
+                        ),
+                        Text(
+                          convertTotalHours.toString() +
+                              "h " +
+                              convertTotalMins.toString() +
+                              "m",
+                          style: TextStyle(fontSize: 16),
+                        )
+                      ],
+                    ),
+                  ],
+                ),
+                SizedBox(height: 5),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: widget.activities.map<Widget>((activity) {
+                    return LogText(
+                      title: typeActivityName[activity.type]!,
+                      data: activity.value.toString(),
+                    );
+                  }).toList(),
+                ),
+              ],
+            ),
           ),
         ),
       ),

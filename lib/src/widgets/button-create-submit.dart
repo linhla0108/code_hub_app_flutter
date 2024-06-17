@@ -1,9 +1,8 @@
-import 'package:another_flushbar/flushbar.dart';
 import 'package:flutter/material.dart';
 
 class ButtonCreateSubmit extends StatelessWidget {
   final bool isCreateNew;
-  void Function() onPressed;
+  final void Function() onPressed;
 
   ButtonCreateSubmit(
       {super.key, required this.isCreateNew, required this.onPressed});
