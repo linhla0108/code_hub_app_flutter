@@ -4,9 +4,12 @@ import 'package:dans_productivity_app_flutter/src/models/history.dart';
 import 'package:dans_productivity_app_flutter/src/utils/formatDate.dart';
 import 'package:dans_productivity_app_flutter/src/widgets/log-card.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
+import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../models/activity.dart';
+import '../utils/hide.dart';
 
 class HistoryScreen extends StatefulWidget {
   final Function(bool)? needRefreshOnChanged;
@@ -17,6 +20,9 @@ class HistoryScreen extends StatefulWidget {
 }
 
 class _HistoryScreenState extends State<HistoryScreen> {
+  ScrollController scrollController = ScrollController();
+  bool showBottomNavigationBar = true;
+
   List<History> history = [];
 
   Future<dynamic>? _historyFuture;
@@ -63,6 +69,34 @@ class _HistoryScreenState extends State<HistoryScreen> {
   void initState() {
     super.initState();
     _historyFuture = getHistory();
+
+    scrollController = ScrollController();
+    scrollController.addListener(() {
+      if (showBottomNavigationBar == true &&
+          scrollController.position.userScrollDirection ==
+              ScrollDirection.reverse) {
+        setState(() {
+          showBottomNavigationBar = false;
+          Provider.of<ScrollControllerProvider>(context, listen: false)
+              .setShowBottomNavigationBar(false);
+        });
+      }
+      if (showBottomNavigationBar == false &&
+          scrollController.position.userScrollDirection ==
+              ScrollDirection.forward) {
+        setState(() {
+          showBottomNavigationBar = true;
+          Provider.of<ScrollControllerProvider>(context, listen: false)
+              .setShowBottomNavigationBar(true);
+        });
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    scrollController.dispose();
+    super.dispose();
   }
 
   @override
@@ -76,6 +110,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
             body: SafeArea(
               bottom: false,
               child: NestedScrollView(
+                  controller: scrollController,
                   headerSliverBuilder:
                       (BuildContext context, bool innerBoxIsScrolled) {
                     return <Widget>[

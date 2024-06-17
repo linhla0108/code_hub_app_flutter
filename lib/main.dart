@@ -3,8 +3,10 @@ import 'package:dans_productivity_app_flutter/src/widgets/navigation-bar.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'firebase_options.dart';
 import 'src/screens/login.dart';
+import 'src/utils/hide.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -12,7 +14,10 @@ void main() async {
     options: DefaultFirebaseOptions.currentPlatform,
   );
 
-  runApp(CodehubApp());
+  runApp(ChangeNotifierProvider(
+    create: (context) => ScrollControllerProvider(),
+    child: CodehubApp(),
+  ));
 }
 
 class CodehubApp extends StatelessWidget {
