@@ -46,6 +46,8 @@ dependencies:
   firebase_auth: ^5.0.0
   shared_preferences: ^2.2.3
   provider: ^6.1.2
+  flutter_platform_widgets: ^7.0.0
+  flutter_launcher_icons: ^0.13.1
 
 dev_dependencies:
   flutter_test:
@@ -105,3 +107,7 @@ flutter:
   #
   # For details regarding fonts from package dependencies,
   # see https://flutter.dev/custom-fonts/#from-packages
+flutter_launcher_icons:
+  android: true
+  ios: true
+  image_path: "assets/icons/appstore.png"

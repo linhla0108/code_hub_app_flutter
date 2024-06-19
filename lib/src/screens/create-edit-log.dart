@@ -86,16 +86,18 @@ class _CreateEditLogScreenState extends State<CreateEditLogScreen> {
     });
   }
 
-  void checkExitedData() async {
-    idItem = dateController.text;
+  Future checkExitedData() async {
+    await getCurrentUserId();
+
+    DateTime startDate = formatTimeStamp(dateController.text);
+    DateTime endDate = DateTime(
+        startDate.year, startDate.month, startDate.day, 23, 59, 59, 999);
 
     dbFB
         .collection('histories')
-        .where('date',
-            isGreaterThanOrEqualTo: formatTimeStamp(dateController.text))
-        .where('date',
-            isLessThanOrEqualTo: formatTimeStamp(dateController.text))
         .where('userId', isEqualTo: userId)
+        .where('date', isGreaterThanOrEqualTo: startDate)
+        .where('date', isLessThanOrEqualTo: endDate)
         .get()
         .then((QuerySnapshot querySnapshot) {
       querySnapshot.docs.forEach((doc) {

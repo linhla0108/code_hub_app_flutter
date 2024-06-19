@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'package:dans_productivity_app_flutter/src/screens/dashboard.dart';
 import 'package:dans_productivity_app_flutter/src/screens/setting.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -48,7 +49,8 @@ class _NavigationBarWidgetState extends State<NavigationBarWidget> {
         child: AnimatedContainer(
           duration: Duration(milliseconds: 200),
           height: showBottomNavigationBar ? 74.0 : 0.0,
-          margin: EdgeInsets.symmetric(horizontal: 16),
+          margin: EdgeInsets.symmetric(
+              horizontal: 16, vertical: Platform.isAndroid ? 10 : 0),
           decoration: BoxDecoration(
             color: Colors.white,
             borderRadius: BorderRadius.circular(20),

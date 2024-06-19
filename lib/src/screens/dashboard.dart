@@ -26,14 +26,33 @@ class _DashBoardState extends State<DashBoard> {
   String userName = "...";
   int optionSelected = 1;
   DateTime now = DateTime.now();
+  String userId = "";
 
   DashboardEntity? dataToday;
   DashboardEntity? dataThisMonth;
   DashboardEntity? dataThisYear;
   DashboardEntity? currentData;
 
+  Future getUserID() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+
+    setState(() {
+      userId = prefs.getString('userId')!;
+    });
+  }
+
   Future getDataUser() async {
     showLoadingDialog(context);
+
+    try {
+      final infoUser = await dbFB.collection('users').doc(userId).get();
+      final getUserName = infoUser['name'];
+      setState(() {
+        userName = getUserName;
+      });
+    } catch (e) {
+      print('Error: $e');
+    }
 
     var data = dbFB.collection('histories');
 
@@ -45,14 +64,6 @@ class _DashBoardState extends State<DashBoard> {
 
     DateTime firstDayOfYear = DateTime(now.year, 1, 1);
     DateTime lastDayOfYear = DateTime(now.year + 1, 1, 0);
-
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    final userId = prefs.getString('userId');
-    final infoUser = await dbFB.collection('users').doc(userId).get();
-
-    setState(() {
-      userName = infoUser['name'];
-    });
 
     void fetchQueryDate(DateTime start, DateTime end, Function formatLabel) {
       data
@@ -138,7 +149,8 @@ class _DashBoardState extends State<DashBoard> {
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      await getUserID();
       getDataUser();
     });
   }
