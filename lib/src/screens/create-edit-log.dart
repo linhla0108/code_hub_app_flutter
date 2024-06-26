@@ -287,87 +287,105 @@ class _CreateEditLogScreenState extends State<CreateEditLogScreen> {
           },
         ),
       ),
-      body: Container(
-        padding: EdgeInsets.fromLTRB(24, 30, 24, 0),
-        width: MediaQuery.of(context).size.width,
-        height: MediaQuery.of(context).size.height,
-        decoration: BoxDecoration(
-          color: Color(0XFFF3F3F3),
-          borderRadius: BorderRadius.only(
-            topLeft: Radius.circular(35),
-            topRight: Radius.circular(35),
-          ),
-        ),
-        child: Form(
-          key: formKey,
-          child: Column(
-            children: [
-              InputCreateLog(
-                label: "Date:",
-                controller: dateController,
-                onTap: () {
-                  _selectedDate(context);
-                },
-                showSuffixText: false,
-                isDatepicker: true,
-                hasValueDate: hasValueDate,
-                validator: (date) {
-                  if (date == null || date.isEmpty) {
-                    return "";
-                  }
-                  return null;
-                },
-              ),
-              SizedBox(height: 20),
-              InputCreateLog(
-                label: 'Coding:',
-                showSuffixText: inputCodingController.text.isNotEmpty,
-                controller: inputCodingController,
-                onChanged: (value) {
-                  calculateStats();
-                },
-              ),
-              SizedBox(height: 20),
-              InputCreateLog(
-                label: 'Research:',
-                showSuffixText: inputResearchController.text.isNotEmpty,
-                controller: inputResearchController,
-                onChanged: (value) {
-                  calculateStats();
-                },
-              ),
-              SizedBox(height: 20),
-              InputCreateLog(
-                label: 'Meeting:',
-                showSuffixText: inputMeetingController.text.isNotEmpty,
-                controller: inputMeetingController,
-                onChanged: (value) {
-                  calculateStats();
-                },
-              ),
-              SizedBox(
-                height: 32,
-                child: Divider(
-                  color: Colors.black.withOpacity(0.1),
+      body: GestureDetector(
+        onTap: () {
+          FocusScope.of(context).unfocus();
+        },
+        child: Listener(
+          onPointerDown: (event) {
+            FocusScope.of(context).unfocus();
+          },
+          child: SingleChildScrollView(
+            child: Container(
+              padding: EdgeInsets.fromLTRB(24, 30, 24, 0),
+              width: MediaQuery.of(context).size.width,
+              // height: MediaQuery.of(context).size.height,
+              height: MediaQuery.of(context).size.height -
+                  MediaQuery.of(context).padding.top -
+                  MediaQuery.of(context).padding.bottom,
+              decoration: BoxDecoration(
+                color: Color(0XFFF3F3F3),
+                borderRadius: BorderRadius.only(
+                  topLeft: Radius.circular(35),
+                  topRight: Radius.circular(35),
                 ),
               ),
-              RowTypePercentage(
-                  isExitedData: isExitedData,
-                  total: totalValue,
-                  coding: codingPercentage,
-                  research: researchPercentage,
-                  meeting: meetingPercentage),
-              Expanded(
+              child: Form(
+                key: formKey,
                 child: Column(
-                  mainAxisAlignment: MainAxisAlignment.end,
                   children: [
+                    InputCreateLog(
+                      label: "Date:",
+                      controller: dateController,
+                      onTap: () {
+                        _selectedDate(context);
+                      },
+                      showSuffixText: false,
+                      isDatepicker: true,
+                      hasValueDate: hasValueDate,
+                      validator: (date) {
+                        if (date == null || date.isEmpty) {
+                          return "";
+                        }
+                        return null;
+                      },
+                    ),
+                    SizedBox(height: 20),
+                    InputCreateLog(
+                      label: 'Coding:',
+                      showSuffixText: inputCodingController.text.isNotEmpty,
+                      controller: inputCodingController,
+                      onChanged: (value) {
+                        calculateStats();
+                      },
+                    ),
+                    SizedBox(height: 20),
+                    InputCreateLog(
+                      label: 'Research:',
+                      showSuffixText: inputResearchController.text.isNotEmpty,
+                      controller: inputResearchController,
+                      onChanged: (value) {
+                        calculateStats();
+                      },
+                    ),
+                    SizedBox(height: 20),
+                    InputCreateLog(
+                      label: 'Meeting:',
+                      showSuffixText: inputMeetingController.text.isNotEmpty,
+                      controller: inputMeetingController,
+                      onChanged: (value) {
+                        calculateStats();
+                      },
+                    ),
+                    SizedBox(
+                      height: 32,
+                      child: Divider(
+                        color: Colors.black.withOpacity(0.1),
+                      ),
+                    ),
+                    RowTypePercentage(
+                        isExitedData: isExitedData,
+                        total: totalValue,
+                        coding: codingPercentage,
+                        research: researchPercentage,
+                        meeting: meetingPercentage),
+                    // Expanded(
+                    //   child: Column(
+                    //     mainAxisAlignment: MainAxisAlignment.end,
+                    //     children: [
+                    SizedBox(
+                      height: 32,
+                    ),
                     ButtonCreateSubmit(
                         isCreateNew: widget.isCreateNew,
                         onPressed: validateForm)
+                    //     ],
+                    //   ),
+                    // )
                   ],
                 ),
-              )
-            ],
+              ),
+            ),
           ),
         ),
       ),
