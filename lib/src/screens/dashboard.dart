@@ -26,7 +26,7 @@ class _DashBoardState extends State<DashBoard> {
   String userName = "...";
   int optionSelected = 1;
   DateTime now = DateTime.now();
-  String userId = "";
+  String? userId = "";
 
   DashboardEntity? dataToday;
   DashboardEntity? dataThisMonth;
@@ -37,7 +37,7 @@ class _DashBoardState extends State<DashBoard> {
     SharedPreferences prefs = await SharedPreferences.getInstance();
 
     setState(() {
-      userId = prefs.getString('userId')!;
+      userId = prefs.getString('userId');
     });
   }
 

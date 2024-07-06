@@ -297,9 +297,8 @@ class _CreateEditLogScreenState extends State<CreateEditLogScreen> {
           },
           child: SingleChildScrollView(
             child: Container(
-              padding: EdgeInsets.fromLTRB(24, 30, 24, 0),
+              padding: EdgeInsets.fromLTRB(20, 30, 20, 0),
               width: MediaQuery.of(context).size.width,
-              // height: MediaQuery.of(context).size.height,
               height: MediaQuery.of(context).size.height -
                   MediaQuery.of(context).padding.top -
                   MediaQuery.of(context).padding.bottom,
@@ -369,10 +368,6 @@ class _CreateEditLogScreenState extends State<CreateEditLogScreen> {
                         coding: codingPercentage,
                         research: researchPercentage,
                         meeting: meetingPercentage),
-                    // Expanded(
-                    //   child: Column(
-                    //     mainAxisAlignment: MainAxisAlignment.end,
-                    //     children: [
                     SizedBox(
                       height: 32,
                     ),

@@ -4,7 +4,7 @@ import 'package:dans_productivity_app_flutter/src/widgets/button-login.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-// import 'package:shared_preferences/shared_preferences.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../style/custom-style.dart';
 
 class LoginScreen extends StatefulWidget {
@@ -48,6 +48,15 @@ class _LoginScreenState extends State<LoginScreen> {
     }
   }
 
+  Future<void> getCurrentUserId() async {
+    final FirebaseAuth auth = FirebaseAuth.instance;
+    final User? user = auth.currentUser;
+    final String uid = user!.uid;
+
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    prefs.setString('userId', uid);
+  }
+
   Future signIn() async {
     showDialog(
       context: context,
@@ -62,6 +71,7 @@ class _LoginScreenState extends State<LoginScreen> {
       )
           .then(
         (value) {
+          getCurrentUserId();
           Navigator.pop(context);
         },
       ).catchError(

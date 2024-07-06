@@ -1,12 +1,10 @@
 import 'dart:io';
 import 'package:dans_productivity_app_flutter/src/screens/dashboard.dart';
 import 'package:dans_productivity_app_flutter/src/screens/setting.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:dans_productivity_app_flutter/src/screens/history.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 import '../utils/hide.dart';
 
@@ -23,16 +21,6 @@ class _NavigationBarWidgetState extends State<NavigationBarWidget> {
   @override
   void initState() {
     super.initState();
-    getCurrentUserId();
-  }
-
-  Future<void> getCurrentUserId() async {
-    final FirebaseAuth auth = FirebaseAuth.instance;
-    final User? user = auth.currentUser;
-    final String uid = user!.uid;
-
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    prefs.setString('userId', uid);
   }
 
   @override
